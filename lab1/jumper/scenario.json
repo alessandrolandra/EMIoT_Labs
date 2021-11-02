@@ -1,0 +1,18 @@
+{
+    "DataGenerators": [
+        {
+            "id": 1,
+            "type": "Constant",
+            "config": {
+                "value": 50
+            }
+        },
+        {
+            "id": 2,
+            "type": "Constant",
+            "config": {
+                "value": 60
+            }
+        }
+    ]
+}
