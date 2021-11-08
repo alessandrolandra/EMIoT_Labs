@@ -1,5 +1,7 @@
 #include "inc/dpm_policies.h"
 
+//#define PRINT //uncomment to print
+
 int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 		tparams, dpm_history_params hparams, char* fwl)
 {
@@ -70,19 +72,23 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
     }
     fclose(fp);
 
-    printf("[sim] Active time in profile = %.6lfs \n", (curr_time - t_idle_ideal) * PSM_TIME_UNIT);
-    printf("[sim] Inactive time in profile = %.6lfs\n", t_idle_ideal * PSM_TIME_UNIT);
-    printf("[sim] Total time = %.6lfs\n", curr_time * PSM_TIME_UNIT);
-    printf("[sim] Timeout waiting time = %.6lfs\n", t_waiting * PSM_TIME_UNIT);
-    for(int i = 0; i < PSM_N_STATES; i++) {
-        printf("[sim] Total time in state %s = %.6lfs\n", PSM_STATE_NAME(i),
-                t_state[i] * PSM_TIME_UNIT);
-    }
-    printf("[sim] Time overhead for transition = %.6lfs\n",t_tran_total * PSM_TIME_UNIT);
-    printf("[sim] N. of transitions = %d\n", n_tran_total);
-    printf("[sim] Energy for transitions = %.10fJ\n", e_tran_total * PSM_ENERGY_UNIT);
-    printf("[sim] Energy w/o DPM = %.10fJ, Energy w DPM = %.10fJ\n",
-            e_total_no_dpm * PSM_ENERGY_UNIT, e_total * PSM_ENERGY_UNIT);
+    #ifdef PRINT
+        printf("[sim] Active time in profile = %.6lfs \n", (curr_time - t_idle_ideal) * PSM_TIME_UNIT);
+        printf("[sim] Inactive time in profile = %.6lfs\n", t_idle_ideal * PSM_TIME_UNIT);
+        printf("[sim] Total time = %.6lfs\n", curr_time * PSM_TIME_UNIT);
+        printf("[sim] Timeout waiting time = %.6lfs\n", t_waiting * PSM_TIME_UNIT);
+        for(int i = 0; i < PSM_N_STATES; i++) {
+            printf("[sim] Total time in state %s = %.6lfs\n", PSM_STATE_NAME(i),
+                    t_state[i] * PSM_TIME_UNIT);
+        }
+        printf("[sim] Time overhead for transition = %.6lfs\n",t_tran_total * PSM_TIME_UNIT);
+        printf("[sim] N. of transitions = %d\n", n_tran_total);
+        printf("[sim] Energy for transitions = %.10fJ\n", e_tran_total * PSM_ENERGY_UNIT);
+        printf("[sim] Energy w/o DPM = %.10fJ, Energy w DPM = %.10fJ\n",
+                e_total_no_dpm * PSM_ENERGY_UNIT, e_total * PSM_ENERGY_UNIT);
+    #else
+        printf("%.10f\n", e_total * PSM_ENERGY_UNIT);
+    #endif
 	return 1;
 }
 
@@ -95,7 +101,11 @@ int dpm_decide_state(psm_state_t *next_state, psm_time_t curr_time,
         case DPM_TIMEOUT:
             /* Day 2: EDIT */
             if(curr_time > idle_period.start + tparams.timeout) {
+            #ifdef IDLE
                 *next_state = PSM_STATE_IDLE;
+            #else
+                *next_state = PSM_STATE_IDLE;
+            #endif
             } else {
                 *next_state = PSM_STATE_ACTIVE;
             }
