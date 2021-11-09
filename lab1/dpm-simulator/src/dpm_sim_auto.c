@@ -29,8 +29,12 @@ static int load_wl(char *fwl, int id){
     return 0;
 }
 
-static int set_timeout(dpm_policy_t *selected_policy, dpm_timeout_params *tparams, float to){
+static int set_timeout_policy(dpm_policy_t *selected_policy){
     *selected_policy = DPM_TIMEOUT;
+    return 0;
+}
+
+static int set_timeout(dpm_timeout_params *tparams, float to){
     tparams->timeout = to;
     return 0;
 }
@@ -45,20 +49,16 @@ static int set_timeout(dpm_policy_t *selected_policy, dpm_timeout_params *tparam
     hparams->threshold[1] = atof(argv[++cur]);
 }*/
 
-int init_params(char *fwl, psm_t *psm, dpm_policy_t *selected_policy, dpm_timeout_params *tparams, dpm_history_params *hparams, int wl_id) {
+int init_params(char *fwl, psm_t *psm, int wl_id) {
     init_psm(psm);
     load_wl(fwl,wl_id);
-    set_timeout(selected_policy, tparams, 0);
     return 0;
 }
 
 int simulate_different_timeouts(char *fwl, psm_t psm, dpm_policy_t *selected_policy, dpm_timeout_params *tparams, dpm_history_params *hparams) {
+    set_timeout_policy(selected_policy);
     for(int i=0;i<200;i++) {
-        if(i>0) {
-            set_timeout(selected_policy, tparams, (float)i);
-        }else{
-            set_timeout(selected_policy, tparams, 0);
-        }
+        set_timeout(tparams, (float)i);
         printf("%d\t",i);
         #ifdef PRINT
             psm_print(psm);
