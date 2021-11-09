@@ -1,6 +1,7 @@
 #include "inc/dpm_policies.h"
 
 //#define PRINT //uncomment to print
+//#define IDLE_ALLOWED //comment to allow IDLE state transition
 
 int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 		tparams, dpm_history_params hparams, char* fwl)
@@ -101,10 +102,10 @@ int dpm_decide_state(psm_state_t *next_state, psm_time_t curr_time,
         case DPM_TIMEOUT:
             /* Day 2: EDIT */
             if(curr_time > idle_period.start + tparams.timeout) {
-            #ifdef IDLE
+            #ifdef IDLE_ALLOWED
                 *next_state = PSM_STATE_IDLE;
             #else
-                *next_state = PSM_STATE_IDLE;
+                *next_state = PSM_STATE_SLEEP;
             #endif
             } else {
                 *next_state = PSM_STATE_ACTIVE;
