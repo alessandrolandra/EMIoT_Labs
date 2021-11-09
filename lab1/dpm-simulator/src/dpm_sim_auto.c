@@ -49,21 +49,27 @@ static int set_timeout(dpm_timeout_params *tparams, float to){
     hparams->threshold[1] = atof(argv[++cur]);
 }*/
 
-int init_params(char *fwl, psm_t *psm, int wl_id) {
+int init_params(char *fwl, psm_t *psm, psm_time_t *t_be, int8_t wl_id, int8_t is_idle_allowed) {
     init_psm(psm);
+    if(is_idle_allowed){
+        *t_be = psm_tran_time(*psm, PSM_STATE_IDLE, PSM_STATE_ACTIVE) + psm_tran_time(*psm, PSM_STATE_ACTIVE, PSM_STATE_IDLE);
+    }else{
+        *t_be = psm_tran_time(*psm, PSM_STATE_SLEEP, PSM_STATE_ACTIVE) + psm_tran_time(*psm, PSM_STATE_ACTIVE, PSM_STATE_SLEEP);
+    }
     load_wl(fwl,wl_id);
     return 0;
 }
 
-int simulate_different_timeouts(char *fwl, psm_t psm, dpm_policy_t *selected_policy, dpm_timeout_params *tparams, dpm_history_params *hparams) {
+int simulate_different_timeouts(char *fwl, psm_t psm, dpm_policy_t *selected_policy, dpm_timeout_params *tparams, dpm_history_params *hparams, int8_t is_idle_allowed, psm_time_t t_be) {
     set_timeout_policy(selected_policy);
     for(int i=0;i<200;i++) {
         set_timeout(tparams, (float)i);
         printf("%d\t",i);
         #ifdef PRINT
             psm_print(psm);
+            printf("[added parameter] t_be: %f\n",t_be);
         #endif
-        dpm_simulate(psm, *selected_policy, *tparams, *hparams, fwl);
+        dpm_simulate(psm, *selected_policy, *tparams, *hparams, fwl, is_idle_allowed);
     }
     return 0;
 }
