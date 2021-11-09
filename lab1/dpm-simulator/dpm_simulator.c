@@ -16,10 +16,13 @@ int main(int argc, char *argv[]) {
     dpm_timeout_params tparams;
     dpm_history_params hparams;
     dpm_policy_t sel_policy;
+    psm_time_t t_be;
+    int8_t wl_id = 2;
+    int8_t is_idle_allowed = 0;
 
     if(argc==1){
-        init_params(fwl, &psm, &sel_policy, &tparams, &hparams, 2);
-        simulate_different_timeouts(fwl, psm, &sel_policy, &tparams, &hparams);
+        init_params(fwl, &psm, &t_be, wl_id, is_idle_allowed);
+        simulate_different_timeouts(fwl, psm, &sel_policy, &tparams, &hparams, is_idle_allowed, t_be);
     }else if(!parse_args(argc, argv, fwl, &psm, &sel_policy, &tparams, &hparams)) {
         printf("[error] reading command line arguments\n");
         return -1;

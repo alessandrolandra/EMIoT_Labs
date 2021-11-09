@@ -1,10 +1,9 @@
 #include "inc/dpm_policies.h"
 
 //#define PRINT //uncomment to print
-//#define IDLE_ALLOWED //comment to allow IDLE state transition
 
 int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
-		tparams, dpm_history_params hparams, char* fwl)
+		tparams, dpm_history_params hparams, char* fwl, int8_t is_idle_allowed)
 {
 
 	FILE *fp;
@@ -42,7 +41,7 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 
             // compute next state
             if(!dpm_decide_state(&curr_state, curr_time, idle_period, history,
-                        sel_policy, tparams, hparams)) {
+                        sel_policy, tparams, hparams, is_idle_allowed)) {
                 printf("[error] cannot decide next state!\n");
                 return 0;
             }
@@ -95,18 +94,18 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 
 int dpm_decide_state(psm_state_t *next_state, psm_time_t curr_time,
         psm_interval_t idle_period, psm_time_t *history, dpm_policy_t policy,
-        dpm_timeout_params tparams, dpm_history_params hparams)
+        dpm_timeout_params tparams, dpm_history_params hparams, int8_t is_idle_allowed)
 {
     switch (policy) {
 
         case DPM_TIMEOUT:
             /* Day 2: EDIT */
             if(curr_time > idle_period.start + tparams.timeout) {
-            #ifdef IDLE_ALLOWED
-                *next_state = PSM_STATE_IDLE;
-            #else
-                *next_state = PSM_STATE_SLEEP;
-            #endif
+                if(is_idle_allowed) {
+                    *next_state = PSM_STATE_IDLE;
+                }else{
+                    *next_state = PSM_STATE_SLEEP;
+                }
             } else {
                 *next_state = PSM_STATE_ACTIVE;
             }
