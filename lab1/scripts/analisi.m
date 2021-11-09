@@ -3,7 +3,7 @@
 %1 LINE: <tot_energy> --> TOTAL ENERGY OF THE POWER MANAGER WITHOUT ANY KIND OF POLICY
 %OTHER LINES: <energy>,<timeout> --> ENERGY WITH GIVEN TIMEOUT VALUE
 clear all, close all
-fid=fopen('report.txt');
+fid=fopen('./results/reportW2-R_I.txt');
 index=1;
 total_energy=str2num(fgetl(fid));
 %-------------------------------------------
