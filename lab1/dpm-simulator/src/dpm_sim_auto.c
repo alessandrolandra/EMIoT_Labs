@@ -9,8 +9,6 @@
 #define WL1_PATH "../workloads/workload_1.txt"
 #define WL2_PATH "../workloads/workload_2.txt"
 
-//#define PRINT //uncomment to print
-
 static int init_psm(psm_t *psm){
      return psm_read(psm, PSM_PATH);
 }
@@ -39,15 +37,21 @@ static int set_timeout(dpm_timeout_params *tparams, float to){
     return 0;
 }
 
-/*int set_policy(dpm_policy_t *selected_policy, dpm_history_params *hparams){
+static int set_history_policy(dpm_policy_t *selected_policy){
     *selected_policy = DPM_HISTORY;
-    int i;
-    for(i = 0; i < DPM_HIST_WIND_SIZE; i++) {
-        hparams->alpha[i] = atof(argv[++cur]);
-    }
-    hparams->threshold[0] = atof(argv[++cur]);
-    hparams->threshold[1] = atof(argv[++cur]);
-}*/
+    return 0;
+}
+
+int set_history_params(dpm_history_params *hparams){
+    hparams->alpha[0] = 1;
+    hparams->alpha[1] = 0.75;
+    hparams->alpha[2] = 0.5;
+    hparams->alpha[3] = 0.25;
+    hparams->alpha[4] = 0.15;
+    hparams->threshold[0] = 2;
+    hparams->threshold[1] = 3;
+    return 0;
+}
 
 int init_params(char *fwl, psm_t *psm, psm_time_t *t_be, int8_t wl_id, int8_t is_idle_allowed) {
     init_psm(psm);
@@ -61,12 +65,6 @@ int simulate_different_timeouts(char *fwl, psm_t psm, dpm_policy_t *selected_pol
     //for(int i=0;i<200;i++) {
     for(int i=0;i<t_be;i++) {
         set_timeout(tparams, (float)i);
-        //printf("%d\t",i);
-        printf("Timeout: %d\n",i);
-        #ifdef PRINT
-            psm_print(psm);
-            printf("[added parameter] t_be: %f\n",t_be);
-        #endif
         dpm_simulate(psm, *selected_policy, *tparams, *hparams, fwl, is_idle_allowed);
     }
     return 0;
