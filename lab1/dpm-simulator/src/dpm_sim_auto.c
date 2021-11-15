@@ -43,11 +43,11 @@ static int set_history_policy(dpm_policy_t *selected_policy){
 }
 
 int set_history_params(dpm_history_params *hparams){
-    hparams->alpha[0] = 1;
-    hparams->alpha[1] = 0.75;
+    hparams->alpha[4] = 1;
+    hparams->alpha[3] = 0.75;
     hparams->alpha[2] = 0.5;
-    hparams->alpha[3] = 0.25;
-    hparams->alpha[4] = 0.15;
+    hparams->alpha[1] = 0.25;
+    hparams->alpha[0] = 0.15;
     hparams->threshold[0] = 2;
     hparams->threshold[1] = 3;
     return 0;
@@ -60,10 +60,9 @@ int init_params(char *fwl, psm_t *psm, psm_time_t *t_be, int8_t wl_id, int8_t is
     return 0;
 }
 
-int simulate_different_timeouts(char *fwl, psm_t psm, dpm_policy_t *selected_policy, dpm_timeout_params *tparams, dpm_history_params *hparams, int8_t is_idle_allowed, psm_time_t t_be) {
+int simulate_different_timeouts(char *fwl, psm_t psm, dpm_policy_t *selected_policy, dpm_timeout_params *tparams, dpm_history_params *hparams, int8_t is_idle_allowed, psm_time_t t_be, int start_timeout, int end_timeout) {
     set_timeout_policy(selected_policy);
-    //for(int i=0;i<200;i++) {
-    for(int i=0;i<t_be;i++) {
+    for(int i=start_timeout;i<=end_timeout;i++) {
         set_timeout(tparams, (float)i);
         dpm_simulate(psm, *selected_policy, *tparams, *hparams, fwl, is_idle_allowed);
     }
