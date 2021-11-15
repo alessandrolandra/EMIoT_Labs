@@ -2,6 +2,12 @@
 
 #define PRINT //uncomment to print
 
+float max(float t1,float t2){
+    if(t1>=t2)
+        return t1;
+    return t2;
+}
+
 int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 		tparams, dpm_history_params hparams, char* fwl, int8_t is_idle_allowed)
 {
@@ -21,6 +27,7 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 	psm_time_t t_idle_ideal = 0;
     psm_time_t t_state[PSM_N_STATES] = {0};
     psm_time_t delay = 0;
+    psm_time_t t_be;
     int n_tran_total = 0;
 
 	fp = fopen(fwl, "r");
@@ -30,6 +37,7 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 	}
 
 	dpm_init_history(history);
+    init_tbe(psm, &t_be, is_idle_allowed);
 
     // main loop
     while(fscanf(fp, "%lf%lf", &idle_period.start, &idle_period.end) == 2) {
@@ -38,11 +46,11 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 		dpm_update_history(history, psm_duration(idle_period));
 
         // for each instant until the end of the current idle period
-		for (; curr_time < idle_period.end; curr_time++) {
+        for (; curr_time < max(idle_period.end,(idle_period.start+t_be+tparams.timeout)); curr_time++) {
 
             // compute next state
             if(!dpm_decide_state(&curr_state, curr_time, idle_period, history,
-                        sel_policy, tparams, hparams, is_idle_allowed)) {
+                        sel_policy, tparams, hparams, is_idle_allowed, t_be, prev_idle_period)) {
                 printf("[error] cannot decide next state!\n");
                 return 0;
             }
@@ -52,20 +60,12 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
                     printf("[error] prohibited transition!\n");
                     return 0;
                 }
-                /*switch (curr_state) {
-                    case 0:
-                        printf("state changed: ACTIVE started at %f\n", curr_time);
-                        break;
-                    case 1:
-                        printf("state changed: IDLE started at %f\n", curr_time);
-                        break;
-                    case 2:
-                        printf("state changed: SLEEP started at %f\n", curr_time);
-                        break;
-            }     */
+
                 if(curr_state == PSM_STATE_ACTIVE){
                     delay += (curr_time-prev_idle_period.end);
-                    //printf("ACTIVE window started at %f; should have started at %f\n",curr_time,prev_idle_period.end);
+                    //printf("ACTIVE window started at %f; should have started at %f..... delay: %f\n",curr_time,prev_idle_period.end,delay);
+                }else{
+                    //printf("IDLE/SLEEP window started at %f; should have started at %f\n",curr_time,idle_period.start);
                 }
                 e_tran = psm_tran_energy(psm, prev_state, curr_state);
                 e_tran_total += e_tran;
@@ -112,19 +112,19 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 
 int dpm_decide_state(psm_state_t *next_state, psm_time_t curr_time,
         psm_interval_t idle_period, psm_time_t *history, dpm_policy_t policy,
-        dpm_timeout_params tparams, dpm_history_params hparams, int8_t is_idle_allowed)
+        dpm_timeout_params tparams, dpm_history_params hparams, int8_t is_idle_allowed, psm_time_t t_be, psm_interval_t prev_idle_period)
 {
     switch (policy) {
 
         case DPM_TIMEOUT:
             /* Day 2: EDIT */
-            if(curr_time > idle_period.start + tparams.timeout) {
+            if(curr_time >= idle_period.start + tparams.timeout && curr_time < idle_period.end) {
                 if(is_idle_allowed) {
                     *next_state = PSM_STATE_IDLE;
                 }else{
                     *next_state = PSM_STATE_SLEEP;
                 }
-            } else {
+            } else if(curr_time >= (prev_idle_period.start+t_be+tparams.timeout)) {
                 *next_state = PSM_STATE_ACTIVE;
             }
             break;
@@ -160,4 +160,13 @@ void dpm_update_history(psm_time_t *h, psm_time_t new_idle)
 		h[i] = h[i+1];
 	}
 	h[DPM_HIST_WIND_SIZE-1] = new_idle;
+}
+
+/* init breakevent time */
+void init_tbe(psm_t psm,psm_time_t *t_be,int8_t is_idle_allowed){
+    if(is_idle_allowed){
+        *t_be = psm_tran_time(psm, PSM_STATE_IDLE, PSM_STATE_ACTIVE) + psm_tran_time(psm, PSM_STATE_ACTIVE, PSM_STATE_IDLE);
+    }else{
+        *t_be = psm_tran_time(psm, PSM_STATE_SLEEP, PSM_STATE_ACTIVE) + psm_tran_time(psm, PSM_STATE_ACTIVE, PSM_STATE_SLEEP);
+    }
 }
