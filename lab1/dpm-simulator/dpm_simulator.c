@@ -23,9 +23,13 @@ int main(int argc, char *argv[]) {
     if(argc==1){
         init_params(fwl, &psm, &t_be, wl_id, is_idle_allowed);
         simulate_different_timeouts(fwl, psm, &sel_policy, &tparams, &hparams, is_idle_allowed, t_be);
-    }else if(!parse_args(argc, argv, fwl, &psm, &sel_policy, &tparams, &hparams)) {
-        printf("[error] reading command line arguments\n");
-        return -1;
+    }else{
+        if(!parse_args(argc, argv, fwl, &psm, &sel_policy, &tparams, &hparams)) {
+            printf("[error] reading command line arguments\n");
+            return -1;
+        }
+        psm_print(psm);
+        dpm_simulate(psm, sel_policy, tparams, hparams, fwl, is_idle_allowed);
     }
 
     return 0;
