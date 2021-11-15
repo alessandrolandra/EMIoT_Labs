@@ -1,13 +1,13 @@
 #include "inc/dpm_policies.h"
 
-//#define PRINT //uncomment to print
+#define PRINT //uncomment to print
 
 int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 		tparams, dpm_history_params hparams, char* fwl, int8_t is_idle_allowed)
 {
 
 	FILE *fp;
-	psm_interval_t idle_period;
+	psm_interval_t idle_period,prev_idle_period;
 	psm_time_t history[DPM_HIST_WIND_SIZE];
 	psm_time_t curr_time = 0;
 	psm_state_t curr_state = PSM_STATE_ACTIVE;
@@ -20,6 +20,7 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
     psm_time_t t_waiting = 0;
 	psm_time_t t_idle_ideal = 0;
     psm_time_t t_state[PSM_N_STATES] = {0};
+    psm_time_t delay = 0;
     int n_tran_total = 0;
 
 	fp = fopen(fwl, "r");
@@ -47,9 +48,24 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
             }
 
             if (curr_state != prev_state) {
-                if(!psm_tran_allowed(psm, prev_state, curr_state)) {
+                if (!psm_tran_allowed(psm, prev_state, curr_state)) {
                     printf("[error] prohibited transition!\n");
                     return 0;
+                }
+                /*switch (curr_state) {
+                    case 0:
+                        printf("state changed: ACTIVE started at %f\n", curr_time);
+                        break;
+                    case 1:
+                        printf("state changed: IDLE started at %f\n", curr_time);
+                        break;
+                    case 2:
+                        printf("state changed: SLEEP started at %f\n", curr_time);
+                        break;
+            }     */
+                if(curr_state == PSM_STATE_ACTIVE){
+                    delay += (curr_time-prev_idle_period.end);
+                    //printf("ACTIVE window started at %f; should have started at %f\n",curr_time,prev_idle_period.end);
                 }
                 e_tran = psm_tran_energy(psm, prev_state, curr_state);
                 e_tran_total += e_tran;
@@ -68,6 +84,7 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
                 t_waiting++;
             }
             prev_state = curr_state;
+            prev_idle_period = idle_period;
         }
     }
     fclose(fp);
@@ -86,6 +103,7 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
         printf("[sim] Energy for transitions = %.10fJ\n", e_tran_total * PSM_ENERGY_UNIT);
         printf("[sim] Energy w/o DPM = %.10fJ, Energy w DPM = %.10fJ\n",
                 e_total_no_dpm * PSM_ENERGY_UNIT, e_total * PSM_ENERGY_UNIT);
+        printf("[added parameter] Delay = %f\n",delay * PSM_TIME_UNIT);
     #else
         printf("%.10f\n", e_total * PSM_ENERGY_UNIT);
     #endif
