@@ -90,6 +90,8 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
     fclose(fp);
 
     #ifdef PRINT
+        psm_print(psm);
+        printf("Timeout: %d\n", tparams.timeout);
         printf("[sim] Active time in profile = %.6lfs \n", (curr_time - t_idle_ideal) * PSM_TIME_UNIT);
         printf("[sim] Inactive time in profile = %.6lfs\n", t_idle_ideal * PSM_TIME_UNIT);
         printf("[sim] Total time = %.6lfs\n", curr_time * PSM_TIME_UNIT);
@@ -103,9 +105,10 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
         printf("[sim] Energy for transitions = %.10fJ\n", e_tran_total * PSM_ENERGY_UNIT);
         printf("[sim] Energy w/o DPM = %.10fJ, Energy w DPM = %.10fJ\n",
                 e_total_no_dpm * PSM_ENERGY_UNIT, e_total * PSM_ENERGY_UNIT);
-        printf("[added parameter] Delay = %f\n",delay * PSM_TIME_UNIT);
+        printf("[added parameter] t_be: %f\n", t_be);
+        printf("[added parameter] Delay = %f\n", delay * PSM_TIME_UNIT);
     #else
-        printf("%.10f\n", e_total * PSM_ENERGY_UNIT);
+        printf("%d\t%.10f\n", tparams.timeout, e_total * PSM_ENERGY_UNIT);
     #endif
 	return 1;
 }
