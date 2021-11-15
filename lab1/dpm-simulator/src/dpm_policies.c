@@ -91,7 +91,7 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 
     #ifdef PRINT
         psm_print(psm);
-        printf("Timeout: %d\n", tparams.timeout);
+        printf("Timeout: %f\n", tparams.timeout);
         printf("[sim] Active time in profile = %.6lfs \n", (curr_time - t_idle_ideal) * PSM_TIME_UNIT);
         printf("[sim] Inactive time in profile = %.6lfs\n", t_idle_ideal * PSM_TIME_UNIT);
         printf("[sim] Total time = %.6lfs\n", curr_time * PSM_TIME_UNIT);
@@ -117,26 +117,37 @@ int dpm_decide_state(psm_state_t *next_state, psm_time_t curr_time,
         psm_interval_t idle_period, psm_time_t *history, dpm_policy_t policy,
         dpm_timeout_params tparams, dpm_history_params hparams, int8_t is_idle_allowed, psm_time_t t_be, psm_interval_t prev_idle_period)
 {
+    int i;
+    double t_pred;
+
     switch (policy) {
 
         case DPM_TIMEOUT:
             /* Day 2: EDIT */
-            if(curr_time >= idle_period.start + tparams.timeout && curr_time < idle_period.end) {
+            if(curr_time >= (idle_period.start + tparams.timeout) && curr_time < idle_period.end) {
                 if(is_idle_allowed) {
                     *next_state = PSM_STATE_IDLE;
                 }else{
                     *next_state = PSM_STATE_SLEEP;
                 }
-            } else if(curr_time >= (prev_idle_period.start+t_be+tparams.timeout)) {
+            } else if(curr_time >= (prev_idle_period.start + t_be + tparams.timeout)) {
                 *next_state = PSM_STATE_ACTIVE;
             }
             break;
 
         case DPM_HISTORY:
             /* Day 3: EDIT */
-            if(curr_time < idle_period.start) {
-                *next_state = PSM_STATE_ACTIVE;
-            } else {
+            t_pred = 0;
+            for(i=(DPM_HIST_WIND_SIZE-1);i>=0;i--){
+                t_pred += hparams.alpha[i]*history[i];
+            }
+            if(curr_time >= idle_period.start && curr_time < idle_period.end && t_pred > hparams.threshold[0]) {
+                if(is_idle_allowed) {
+                    *next_state = PSM_STATE_IDLE;
+                }else{
+                    *next_state = PSM_STATE_SLEEP;
+                }
+            } else if(curr_time >= (prev_idle_period.start + t_be)) {
                 *next_state = PSM_STATE_ACTIVE;
             }
             break;

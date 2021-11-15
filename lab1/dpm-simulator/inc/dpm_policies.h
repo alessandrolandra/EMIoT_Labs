@@ -15,7 +15,7 @@
 /** history window size for history-based policies */
 #define DPM_HIST_WIND_SIZE 5
 /** number of thresholds for history-based policies */
-#define DPM_N_THRESHOLDS 2
+#define DPM_N_THRESHOLDS 1
 /** @} */
 
 /**
