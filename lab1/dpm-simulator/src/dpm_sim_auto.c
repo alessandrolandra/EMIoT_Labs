@@ -42,14 +42,17 @@ static int set_history_policy(dpm_policy_t *selected_policy){
     return 0;
 }
 
-int set_history_params(dpm_history_params *hparams){
+static int init_history_params(dpm_history_params *hparams){
     hparams->alpha[4] = 1;
     hparams->alpha[3] = 0.75;
     hparams->alpha[2] = 0.5;
     hparams->alpha[1] = 0.25;
     hparams->alpha[0] = 0.15;
-    hparams->threshold[0] = 2;
-    hparams->threshold[1] = 3;
+    return 0;
+}
+
+static int set_history_threshold(dpm_history_params *hparams, double threshold){
+    hparams->threshold[0] = threshold;
     return 0;
 }
 
@@ -64,6 +67,16 @@ int simulate_different_timeouts(char *fwl, psm_t psm, dpm_policy_t *selected_pol
     set_timeout_policy(selected_policy);
     for(int i=start_timeout;i<=end_timeout;i++) {
         set_timeout(tparams, (float)i);
+        dpm_simulate(psm, *selected_policy, *tparams, *hparams, fwl, is_idle_allowed);
+    }
+    return 0;
+}
+
+int simulate_different_history_thresholds(char *fwl, psm_t psm, dpm_policy_t *selected_policy, dpm_timeout_params *tparams, dpm_history_params *hparams, int8_t is_idle_allowed, psm_time_t t_be, int start_threshold, int end_threshold) {
+    set_history_policy(selected_policy);
+    init_history_params(hparams);
+    for(int i=start_threshold;i<=end_threshold;i++) {
+        set_history_threshold(hparams, (float)i);
         dpm_simulate(psm, *selected_policy, *tparams, *hparams, fwl, is_idle_allowed);
     }
     return 0;
