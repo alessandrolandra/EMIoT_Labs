@@ -91,7 +91,11 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 
     #ifdef PRINT
         psm_print(psm);
-        printf("Timeout: %f\n", tparams.timeout);
+        if(sel_policy==DPM_TIMEOUT){
+            printf("Timeout: %f\n", tparams.timeout);
+        }else {
+            printf("Threshold: %f\n", hparams.threshold[0]);
+        }
         printf("[sim] Active time in profile = %.6lfs \n", (curr_time - t_idle_ideal) * PSM_TIME_UNIT);
         printf("[sim] Inactive time in profile = %.6lfs\n", t_idle_ideal * PSM_TIME_UNIT);
         printf("[sim] Total time = %.6lfs\n", curr_time * PSM_TIME_UNIT);

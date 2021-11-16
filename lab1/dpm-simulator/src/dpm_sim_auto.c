@@ -43,11 +43,11 @@ static int set_history_policy(dpm_policy_t *selected_policy){
 }
 
 static int init_history_params(dpm_history_params *hparams){
-    hparams->alpha[4] = 1;
-    hparams->alpha[3] = 0.75;
-    hparams->alpha[2] = 0.5;
-    hparams->alpha[1] = 0.25;
-    hparams->alpha[0] = 0.15;
+    hparams->alpha[4] = 0.45;
+    hparams->alpha[3] = 0.25;
+    hparams->alpha[2] = 0.15;
+    hparams->alpha[1] = 0.10;
+    hparams->alpha[0] = 0.05;
     return 0;
 }
 
