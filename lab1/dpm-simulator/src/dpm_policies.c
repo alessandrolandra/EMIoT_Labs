@@ -1,6 +1,6 @@
 #include "inc/dpm_policies.h"
 
-#define PRINT //uncomment to print
+//#define PRINT //uncomment to print
 
 float max(float t1,float t2){
     if(t1>=t2)
@@ -112,7 +112,13 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
         printf("[added parameter] t_be: %f\n", t_be);
         printf("[added parameter] Delay = %f\n", delay * PSM_TIME_UNIT);
     #else
-        printf("%d\t%.10f\n", tparams.timeout, e_total * PSM_ENERGY_UNIT);
+        if(sel_policy==DPM_TIMEOUT){
+            //printf("%f\t%.10f\n", tparams.timeout, e_total * PSM_ENERGY_UNIT);
+            printf("%.10f,%.1f\n", e_total * PSM_ENERGY_UNIT, tparams.timeout);
+        }else {
+            //printf("%f\t%.10f\n", hparams.threshold[0], e_total * PSM_ENERGY_UNIT);
+            printf("%.10f,%.1f\n", e_total * PSM_ENERGY_UNIT, hparams.threshold[0]);
+        }
     #endif
 	return 1;
 }
