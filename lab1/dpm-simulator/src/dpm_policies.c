@@ -1,6 +1,6 @@
 #include "inc/dpm_policies.h"
 
-//#define PRINT //uncomment to print
+#define PRINT //uncomment to print
 
 float max(float t1,float t2){
     if(t1>=t2)
@@ -13,7 +13,7 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 {
 
 	FILE *fp;
-	psm_interval_t idle_period,prev_idle_period;
+	psm_interval_t idle_period;
 	psm_time_t history[DPM_HIST_WIND_SIZE];
 	psm_time_t curr_time = 0;
 	psm_state_t curr_state = PSM_STATE_ACTIVE;
@@ -28,7 +28,9 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
     psm_time_t t_state[PSM_N_STATES] = {0};
     psm_time_t delay = 0;
     psm_time_t t_be;
-    int n_tran_total = 0;
+    int8_t n_tran_total = 0;
+
+    int8_t IS_WAITING_ACTIVE_STATE;
 
 	fp = fopen(fwl, "r");
 	if(!fp) {
@@ -42,15 +44,23 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
     // main loop
     while(fscanf(fp, "%lf%lf", &idle_period.start, &idle_period.end) == 2) {
 
+        IS_WAITING_ACTIVE_STATE=1;
+
         t_idle_ideal += psm_duration(idle_period);
 		dpm_update_history(history, psm_duration(idle_period));
 
+        printf("curr_time: %f\n",curr_time);
+        if(idle_period.end < curr_time){
+            printf("AAAAAAAAAAAA sto balzando %f,%f curr_time: %f\n",idle_period.start,idle_period.end,curr_time);
+            continue;
+        }
+
         // for each instant until the end of the current idle period
-        for (; curr_time < max(idle_period.end,(idle_period.start+t_be+tparams.timeout)); curr_time++) {
+        for (; curr_time <= max(idle_period.end,(idle_period.start+t_be+tparams.timeout)) && IS_WAITING_ACTIVE_STATE; curr_time++) {
 
             // compute next state
             if(!dpm_decide_state(&curr_state, curr_time, idle_period, history,
-                        sel_policy, tparams, hparams, is_idle_allowed, t_be, prev_idle_period)) {
+                        sel_policy, tparams, hparams, is_idle_allowed, t_be, &IS_WAITING_ACTIVE_STATE)) {
                 printf("[error] cannot decide next state!\n");
                 return 0;
             }
@@ -62,10 +72,10 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
                 }
 
                 if(curr_state == PSM_STATE_ACTIVE){
-                    delay += (curr_time-prev_idle_period.end);
-                    //printf("ACTIVE window started at %f; should have started at %f..... delay: %f\n",curr_time,prev_idle_period.end,delay);
+                    delay += (curr_time-idle_period.end);
+                    printf("ACTIVE window started at %f; should have started at %f..... delay: %f\n",curr_time,idle_period.end,delay);
                 }else{
-                    //printf("IDLE/SLEEP window started at %f; should have started at %f\n",curr_time,idle_period.start);
+                    printf("IDLE/SLEEP window started at %f; should have started at %f\n",curr_time,idle_period.start);
                 }
                 e_tran = psm_tran_energy(psm, prev_state, curr_state);
                 e_tran_total += e_tran;
@@ -84,7 +94,6 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
                 t_waiting++;
             }
             prev_state = curr_state;
-            prev_idle_period = idle_period;
         }
     }
     fclose(fp);
@@ -125,7 +134,7 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 
 int dpm_decide_state(psm_state_t *next_state, psm_time_t curr_time,
         psm_interval_t idle_period, psm_time_t *history, dpm_policy_t policy,
-        dpm_timeout_params tparams, dpm_history_params hparams, int8_t is_idle_allowed, psm_time_t t_be, psm_interval_t prev_idle_period)
+        dpm_timeout_params tparams, dpm_history_params hparams, int8_t is_idle_allowed, psm_time_t t_be, int8_t *IS_WAITING_ACTIVE_STATE)
 {
     int i;
     double t_pred;
@@ -140,8 +149,12 @@ int dpm_decide_state(psm_state_t *next_state, psm_time_t curr_time,
                 }else{
                     *next_state = PSM_STATE_SLEEP;
                 }
-            } else if(curr_time >= (prev_idle_period.start + t_be + tparams.timeout)) {
+                *IS_WAITING_ACTIVE_STATE=1;
+            /*} else if(curr_time > idle_period.end){
+                *IS_WAITING_ACTIVE_STATE=0;*/
+            } else if(curr_time >= (idle_period.start + t_be + tparams.timeout)) {
                 *next_state = PSM_STATE_ACTIVE;
+                *IS_WAITING_ACTIVE_STATE=0;
             }
             break;
 
@@ -157,8 +170,10 @@ int dpm_decide_state(psm_state_t *next_state, psm_time_t curr_time,
                 }else{
                     *next_state = PSM_STATE_SLEEP;
                 }
-            } else if(curr_time >= (prev_idle_period.start + t_be)) {
+                *IS_WAITING_ACTIVE_STATE=1;
+            } else if(curr_time >= (idle_period.start + t_be)) {
                 *next_state = PSM_STATE_ACTIVE;
+                *IS_WAITING_ACTIVE_STATE=0;
             }
             break;
 

@@ -8,6 +8,7 @@
 #define PSM_PATH "example/psm.txt"
 #define WL1_PATH "../workloads/workload_1.txt"
 #define WL2_PATH "../workloads/workload_2.txt"
+#define WL3_PATH "../workloads/workload_3.txt"
 
 static int init_psm(psm_t *psm){
      return psm_read(psm, PSM_PATH);
@@ -20,6 +21,9 @@ static int load_wl(char *fwl, int id){
             break;
         case 2:
             strcpy(fwl, WL2_PATH);
+            break;
+        case 3:
+            strcpy(fwl, WL3_PATH);
             break;
         default:
             strcpy(fwl, WL1_PATH);

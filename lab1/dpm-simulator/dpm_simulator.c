@@ -9,13 +9,13 @@
 
 #define MAX_FILENAME 256
 
-#define wl_id 2
+#define wl_id 3
 #define is_idle_allowed 0
 #define start_timeout 0
-#define end_timeout 200
-#define start_threshold 0
-#define end_threshold 200
-//#define TIMEOUT_POLICY//comment to use history policy
+#define end_timeout 10
+#define start_threshold 10
+#define end_threshold 15
+#define TIMEOUT_POLICY//comment to use history policy
 
 int main(int argc, char *argv[]) {
 
@@ -38,6 +38,8 @@ int main(int argc, char *argv[]) {
             printf("[error] reading command line arguments\n");
             return -1;
         }
+        init_tbe(psm,&t_be,is_idle_allowed);
+
         psm_print(psm);
         dpm_simulate(psm, sel_policy, tparams, hparams, fwl, is_idle_allowed);
     }
