@@ -5,8 +5,19 @@
 #include "inc/psm.h"
 #include "inc/dpm_policies.h"
 #include "inc/utilities.h"
+//#include "inc/dpm_sim_auto.h"
 
 #define MAX_FILENAME 256
+#define is_idle_allowed 1
+
+/*
+#define wl_id 3
+#define start_timeout 0
+#define end_timeout 10
+#define start_threshold 10
+#define end_threshold 15
+#define TIMEOUT_POLICY//comment to use history policy
+*/
 
 int main(int argc, char *argv[]) {
 
@@ -15,13 +26,36 @@ int main(int argc, char *argv[]) {
     dpm_timeout_params tparams;
     dpm_history_params hparams;
     dpm_policy_t sel_policy;
+    psm_time_t t_be;
 
-    if(!parse_args(argc, argv, fwl, &psm, &sel_policy, &tparams, &hparams)) {
-        printf("[error] reading command line arguments\n");
-        return -1;
+	/*
+
+    if(argc==1) {
+        init_params(fwl, &psm, &t_be, wl_id, is_idle_allowed);
+        #ifdef TIMEOUT_POLICY
+            simulate_different_timeouts(fwl, psm, &sel_policy, &tparams, &hparams, is_idle_allowed, t_be, start_timeout, end_timeout);
+        #else
+            simulate_different_history_thresholds(fwl, psm, &sel_policy, &tparams, &hparams, is_idle_allowed, t_be, start_threshold, end_threshold);
+        #endif
+    }else{
+        if(!parse_args(argc, argv, fwl, &psm, &sel_policy, &tparams, &hparams)) {
+            printf("[error] reading command line arguments\n");
+            return -1;
+        }
+        init_tbe(psm,&t_be,is_idle_allowed);
+
+        psm_print(psm);
+        dpm_simulate(psm, sel_policy, tparams, hparams, fwl, is_idle_allowed);
     }
-    psm_print(psm);
-	dpm_simulate(psm, sel_policy, tparams, hparams, fwl);
+	*/
+    if(!parse_args(argc, argv, fwl, &psm, &sel_policy, &tparams, &hparams)) {
+            printf("[error] reading command line arguments\n");
+            return -1;
+        }
+        init_tbe(psm,&t_be,is_idle_allowed);
+
+        psm_print(psm);
+        dpm_simulate(psm, sel_policy, tparams, hparams, fwl, is_idle_allowed);
 
     return 0;
 }

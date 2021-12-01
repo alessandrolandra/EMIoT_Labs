@@ -15,7 +15,7 @@
 /** history window size for history-based policies */
 #define DPM_HIST_WIND_SIZE 5
 /** number of thresholds for history-based policies */
-#define DPM_N_THRESHOLDS 2
+#define DPM_N_THRESHOLDS 1
 /** @} */
 
 /**
@@ -57,12 +57,13 @@ typedef struct {
  * @param tparams: the timeout policy parameters (if selected)
  * @param hparams: the history policy parameters (if selected)
  * @param fwl: the worload filename
+ * @param is_idle_allowed: tells whether the IDLE state transition is allowed
  *
  * @return 1 on success, 0 on failure
  *
  */
 int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
-        tparams, dpm_history_params hparams, char* fwl);
+        tparams, dpm_history_params hparams, char* fwl, int8_t is_idle_allowed);
 
 /**
  * @brief Decide the next PSM state according to a given DPM policy
@@ -75,13 +76,14 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
  * @param policy: the ID of the selected DPM policy @param tparams: the
  * parameters of the timeout policy (if selected) @param hparams: the
  * parameters of the history policy (if selected)
- *
+ * @param is_idle_allowed: tells whether the IDLE state transition is allowed
+ * @param t_be: breakevent time
  * @return 1 on success, 0 on failure
  *
  */
 int dpm_decide_state(psm_state_t *next_state, psm_time_t curr_time,
         psm_interval_t idle_period, psm_time_t *history, dpm_policy_t policy,
-        dpm_timeout_params tparams, dpm_history_params hparams);
+        dpm_timeout_params tparams, dpm_history_params hparams, int8_t is_idle_allowed, psm_time_t t_be);
 
 /**
  * @brief Initialize the history of previous idle times at the beginning of a simulation
@@ -99,5 +101,14 @@ void dpm_init_history(psm_time_t *h);
  *
  */
 void dpm_update_history(psm_time_t *h, psm_time_t new_idle);
+
+/**
+ * @brief init breakevent time
+ *
+ * @param psm
+ * @param t_be
+ * @param is_idle_allowed
+ */
+void init_tbe(psm_t psm,psm_time_t *t_be,int8_t is_idle_allowed);
 
 #endif

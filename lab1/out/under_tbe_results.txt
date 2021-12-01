@@ -1,0 +1,65 @@
+Timeout: 0
+[sim] Active time in profile = 2.659000s 
+[sim] Inactive time in profile = 1089.415000s
+[sim] Total time = 1092.074000s
+[sim] Timeout waiting time = 0.000000s
+[sim] Total time in state Run = 2.654000s
+[sim] Total time in state Idle = 0.000000s
+[sim] Total time in state Sleep = 1089.420000s
+[sim] Time overhead for transition = 0.561000s
+[sim] N. of transitions = 225
+[sim] Energy for transitions = 0.2262600000J
+[sim] Energy w/o DPM = 30.1412424005J, Energy w DPM = 0.3975582000J
+[added parameter] Delay = 0.005000
+Timeout: 1
+[sim] Active time in profile = 2.659000s 
+[sim] Inactive time in profile = 1089.415000s
+[sim] Total time = 1092.074000s
+[sim] Timeout waiting time = 0.113000s
+[sim] Total time in state Run = 2.763000s
+[sim] Total time in state Idle = 0.000000s
+[sim] Total time in state Sleep = 1089.311000s
+[sim] Time overhead for transition = 0.561000s
+[sim] N. of transitions = 225
+[sim] Energy for transitions = 0.2262600000J
+[sim] Energy w/o DPM = 30.1412424005J, Energy w DPM = 0.4005567900J
+[added parameter] Delay = 0.009000
+Timeout: 2
+[sim] Active time in profile = 2.659000s 
+[sim] Inactive time in profile = 1089.415000s
+[sim] Total time = 1092.074000s
+[sim] Timeout waiting time = 0.226000s
+[sim] Total time in state Run = 2.872000s
+[sim] Total time in state Idle = 0.000000s
+[sim] Total time in state Sleep = 1089.202000s
+[sim] Time overhead for transition = 0.561000s
+[sim] N. of transitions = 225
+[sim] Energy for transitions = 0.2262600000J
+[sim] Energy w/o DPM = 30.1412424005J, Energy w DPM = 0.4035553800J
+[added parameter] Delay = 0.013000
+Timeout: 3
+[sim] Active time in profile = 2.659000s 
+[sim] Inactive time in profile = 1089.415000s
+[sim] Total time = 1092.074000s
+[sim] Timeout waiting time = 0.343000s
+[sim] Total time in state Run = 2.986000s
+[sim] Total time in state Idle = 0.000000s
+[sim] Total time in state Sleep = 1089.088000s
+[sim] Time overhead for transition = 0.556000s
+[sim] N. of transitions = 223
+[sim] Energy for transitions = 0.2242400000J
+[sim] Energy w/o DPM = 30.1412424005J, Energy w DPM = 0.4046715200J
+[added parameter] Delay = 0.012000
+Timeout: 4
+[sim] Active time in profile = 2.659000s 
+[sim] Inactive time in profile = 1089.415000s
+[sim] Total time = 1092.074000s
+[sim] Timeout waiting time = 0.468000s
+[sim] Total time in state Run = 3.110000s
+[sim] Total time in state Idle = 0.000000s
+[sim] Total time in state Sleep = 1088.964000s
+[sim] Time overhead for transition = 0.541000s
+[sim] N. of transitions = 217
+[sim] Energy for transitions = 0.2181800000J
+[sim] Energy w/o DPM = 30.1412424005J, Energy w DPM = 0.4020227600J
+[added parameter] Delay = 0.000000
