@@ -29,8 +29,7 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
     psm_time_t delay = 0;
     psm_time_t t_be;
     int8_t n_tran_total = 0;
-
-    int8_t IS_WAITING_ACTIVE_STATE;
+	int window_size = 0;
 
 	fp = fopen(fwl, "r");
 	if(!fp) {
@@ -41,26 +40,42 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 	dpm_init_history(history);
     init_tbe(psm, &t_be, is_idle_allowed);
 
-    // main loop
+    /*Delay=Amount of active time missed*/
     while(fscanf(fp, "%lf%lf", &idle_period.start, &idle_period.end) == 2) {
-
-        IS_WAITING_ACTIVE_STATE=1;
 
         t_idle_ideal += psm_duration(idle_period);
 		dpm_update_history(history, psm_duration(idle_period));
 
-        printf("curr_time: %f\n",curr_time);
+        /*
+        * In case the curr_time > idle.end it means that
+        * this idle period has been missed totally
+        * Now the PSM is aware of this, the delay should be adjusted.
+        * Why? Because in the for loop the delay increases every time curr_time > idle.end (idle.end==active.start), but
+        * it is possible that the curr_time becomes large enought to include also a future idle period..(this idle is not a delay..)
+        */
         if(idle_period.end < curr_time){
-            printf("AAAAAAAAAAAA sto balzando %f,%f curr_time: %f\n",idle_period.start,idle_period.end,curr_time);
+			delay -= psm_duration(idle_period);
             continue;
         }
+		/*IF WE ARE IN THE MIDDLE OF AN IDLE PERIOD*/
+		if(curr_time>idle_period.start && curr_time<idle_period.end){
+			delay -= curr_time - idle_period.start -1;
+		}
+		/*is there a possibility to move to idle/sleep?
+		* yes: idle_period>timeout --> extend the "window" to max(......)
+		* no:  idle_period<=timeout --> do not extend the window, just loop untile idle_period.end
+		*/
+		if(psm_duration(idle_period)<=tparams.timeout)
+			window_size=idle_period.end;
+		else
+			window_size=max(idle_period.end,(idle_period.start+t_be+tparams.timeout));
 
         // for each instant until the end of the current idle period
-        for (; curr_time <= max(idle_period.end,(idle_period.start+t_be+tparams.timeout)) && IS_WAITING_ACTIVE_STATE; curr_time++) {
+        for (; curr_time <= window_size ; curr_time++) {
 
             // compute next state
             if(!dpm_decide_state(&curr_state, curr_time, idle_period, history,
-                        sel_policy, tparams, hparams, is_idle_allowed, t_be, &IS_WAITING_ACTIVE_STATE)) {
+                        sel_policy, tparams, hparams, is_idle_allowed, t_be)) {
                 printf("[error] cannot decide next state!\n");
                 return 0;
             }
@@ -134,7 +149,7 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
 
 int dpm_decide_state(psm_state_t *next_state, psm_time_t curr_time,
         psm_interval_t idle_period, psm_time_t *history, dpm_policy_t policy,
-        dpm_timeout_params tparams, dpm_history_params hparams, int8_t is_idle_allowed, psm_time_t t_be, int8_t *IS_WAITING_ACTIVE_STATE)
+        dpm_timeout_params tparams, dpm_history_params hparams, int8_t is_idle_allowed, psm_time_t t_be)
 {
     int i;
     double t_pred;
@@ -149,12 +164,8 @@ int dpm_decide_state(psm_state_t *next_state, psm_time_t curr_time,
                 }else{
                     *next_state = PSM_STATE_SLEEP;
                 }
-                *IS_WAITING_ACTIVE_STATE=1;
-            /*} else if(curr_time > idle_period.end){
-                *IS_WAITING_ACTIVE_STATE=0;*/
             } else if(curr_time >= (idle_period.start + t_be + tparams.timeout)) {
                 *next_state = PSM_STATE_ACTIVE;
-                *IS_WAITING_ACTIVE_STATE=0;
             }
             break;
 
@@ -170,10 +181,8 @@ int dpm_decide_state(psm_state_t *next_state, psm_time_t curr_time,
                 }else{
                     *next_state = PSM_STATE_SLEEP;
                 }
-                *IS_WAITING_ACTIVE_STATE=1;
             } else if(curr_time >= (idle_period.start + t_be)) {
                 *next_state = PSM_STATE_ACTIVE;
-                *IS_WAITING_ACTIVE_STATE=0;
             }
             break;
 

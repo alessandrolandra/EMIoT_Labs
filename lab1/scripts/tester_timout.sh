@@ -10,7 +10,8 @@
 DPM="../dpm-simulator/dpm_simulator"
 LOAD="../workloads/workload_2.txt"
 PSM="../dpm-simulator/example/psm.txt"
-Max=10
+Min=0
+Max=200
 if [ $# -eq 1 ] ;then
 	if [ -f $1 ] ;then
 		LOAD=$1
@@ -20,7 +21,7 @@ if [ $# -eq 1 ] ;then
 	fi
 fi
 
-for timeout in $(seq 0 0.01 $Max)
+for timeout in $(seq $Min 1 $Max)
 do
 	$DPM -t $timeout -wl $LOAD -psm $PSM > tmp_report
 	if [ $timeout == 0 ];then
@@ -31,7 +32,4 @@ do
 	echo "$energy,$timeout" >> report.txt
 done
 rm -f tmp_report
-
-
-
 

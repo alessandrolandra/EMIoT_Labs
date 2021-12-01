@@ -78,13 +78,12 @@ int dpm_simulate(psm_t psm, dpm_policy_t sel_policy, dpm_timeout_params
  * parameters of the history policy (if selected)
  * @param is_idle_allowed: tells whether the IDLE state transition is allowed
  * @param t_be: breakevent time
- * @param IS_WAITING_ACTIVE_STATE: 1 if is waiting
  * @return 1 on success, 0 on failure
  *
  */
 int dpm_decide_state(psm_state_t *next_state, psm_time_t curr_time,
         psm_interval_t idle_period, psm_time_t *history, dpm_policy_t policy,
-        dpm_timeout_params tparams, dpm_history_params hparams, int8_t is_idle_allowed, psm_time_t t_be, int8_t *IS_WAITING_ACTIVE_STATE);
+        dpm_timeout_params tparams, dpm_history_params hparams, int8_t is_idle_allowed, psm_time_t t_be);
 
 /**
  * @brief Initialize the history of previous idle times at the beginning of a simulation
