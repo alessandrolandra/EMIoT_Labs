@@ -2,25 +2,17 @@
    %All High Tone pixels (L: [200-250]) are transformed into middle tone pixels (L: [150-200])
    %All Low Tone pixels (L: [0-50]) are turned off
 clear all, close all
-A=imread("house.tiff");
+A=imread("../images/4.2.03.tiff");
 PwrO=impwr(A);
 
-%% %Apply Equalization
-%Anew=imgeqz(A);
+%% %Apply Equalization 
+Anew=imgeqz(A);
 Anew=A;
-%% %Figure(1)
-figure
-subplot(1,2,1)
-imshow(A)
-title('Original')
-subplot(1,2,2)
-imshow(Anew)
-title('Equalized')
 
 %% %Apply Thresholding on Brightness and Saturation 
 Anew_Th=thresholding(Anew,2,2);
 
-%% %Figure(2)
+%% %Figure(1)
 figure
 subplot(1,3,1)
 imshow(A)
@@ -30,6 +22,18 @@ imshow(Anew)
 title('Equalized')
 subplot(1,3,3)
 imshow(Anew_Th)
+title('Equalized and Thresholding')
+
+%% %Figure(2)
+figure
+subplot(1,3,1)
+imhist(A)
+title('Original')
+subplot(1,3,2)
+imhist(Anew)
+title('Equalized')
+subplot(1,3,3)
+imhist(Anew_Th)
 title('Equalized and Thresholding')
 
 %% %Power Saved Equalization
