@@ -6,7 +6,7 @@ A=imread("../images/4.2.03.tiff");
 PwrO=impwr(A);
 
 %% %Apply Equalization 
-Anew=imgeqz(A);
+%Anew=imgeqz(A);
 Anew=A;
 
 %% %Apply Thresholding on Brightness and Saturation 

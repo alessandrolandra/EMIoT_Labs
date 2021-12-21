@@ -2,7 +2,7 @@ clear all,close all
 %Channels power comparison
 %Changing each channel intensity from 0 to 100%
 K=0:0.1:1;
-A = imread("images/4.2.03.tiff");
+A = imread("../images/4.2.03.tiff");
 [R,G,B] = imsplit(A);
 
 %RED
@@ -77,7 +77,7 @@ imshow(cat(3,R0,G255,B0))
 title('Green image (R=0,G=255,B=0)')
 subplot(3,3,6)
 imshow(cat(3,R0,G0,B255))
-title('Green image (R=0,G=0,B=255)')
+title('Blue image (R=0,G=0,B=255)')
 subplot(3,3,8)
 imshow(cat(3,R255,G255,B255))
 title('White image (R=255,G=255,B=255)')
@@ -88,7 +88,7 @@ figure
 hold on, grid on
 title('Power variations wrt channels intensity variations')
 ylabel('Power')
-xlabel('% intensity variation')
+xlabel('intensity variation')
 plot(K,PwrR,'red')
 plot(K,PwrG,'green')
 plot(K,PwrB,'blue')

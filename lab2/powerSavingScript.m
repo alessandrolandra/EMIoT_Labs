@@ -34,7 +34,8 @@ fprintf("HSV\nImage distortion: %f%%\n",matDistP(B1,B3));
 fprintf("Power saving: %f%%\n",matSavingP(A,E));
 
 %Apply Equalization 
-Aeq=imgeqz(A);
+%Aeq=imgeqz(A);
+Aeq=A;
 
 %Apply Thresholding on Brightness and Saturation 
 Aeq_Th=thresholding(Aeq,2,2);
@@ -113,7 +114,7 @@ function matDist = matDist(A,B)
 		for col=1:size(A,2)
             matDist = matDist + sqrt(power(double((A(row,col,1)-B(row,col,1))),2) + power(double((A(row,col,2)-B(row,col,2))),2) + power(double((A(row,col,3)-B(row,col,3))),2));
 		end
-	end
+    end
 end
 
 %% Image distortion percentage evaluation in LAB
@@ -165,7 +166,7 @@ function Anew = thresholding(A,Ms,Ns)
                 Vtmp=(Vtmp.*0) + 0.70;
             end
             %% Thresholding on Low Brightness (V=(0%,20%])
-            if (Vavg<=0.20)
+            if (Vavg<=0.90)
                 Vtmp=(Vtmp.*0);
             end
             %% Write back modifications to V and S
