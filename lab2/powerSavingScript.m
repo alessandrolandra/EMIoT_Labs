@@ -2,17 +2,19 @@ clear;
 close all;
 clc;
 
+addpath([pwd, filesep, 'functions'])
+
 A = imread("images/4.2.03.tiff");
 
 B1 = rgb2lab(A);
 B2 = B1;
 B2(:,:,1) = B1(:,:,1)*0.8;%just reducing luminance in LAB
-C = lab2rgb(B2);
+C = lab2rgb255(B2);
 
 D1 = rgb2hsv(A);
 D2 = D1;
 D2(:,:,3) = D1(:,:,3)*0.8;%just reducing luminance in HSV
-E = hsv2rgb(D2);
+E = hsv2rgb255(D2);
 B3 = rgb2lab(E);%needed to compute distortion
 
 %% Figure LAB L reduced, HSV V reduced
@@ -28,10 +30,10 @@ imshow(E)
 title('V reduced')
 
 fprintf("LAB\nImage distortion: %f%%\n",matDistP(B1,B2));
-fprintf("Power saving: %f%%\n",matSavingP(A,C));
+fprintf("Power saving: %f%%\n\n",matSavingP(A,C));
 
 fprintf("HSV\nImage distortion: %f%%\n",matDistP(B1,B3));
-fprintf("Power saving: %f%%\n",matSavingP(A,E));
+fprintf("Power saving: %f%%\n\n",matSavingP(A,E));
 
 %Apply Equalization 
 %Aeq=imgeqz(A);
@@ -77,9 +79,10 @@ distOrEq=matDistP(A,Aeq);
 distOrEq_Th=matDistP(A,Aeq_Th);
 
 fprintf("Equalized\nImage distortion: %f%%\n",distOrEq);
-fprintf("Power saving: %f%%\n",Perc);
+fprintf("Power saving: %f%%\n\n",Perc);
 
 fprintf("Equalized and Thresholding\nImage distortion: %f%%\n",distOrEq_Th);
+<<<<<<< HEAD
 fprintf("Power saving: %f%%\n",Perc_Th);
 
 
@@ -184,3 +187,6 @@ function Anew = thresholding(A,Ms,Ns)
     Anew=hsv2rgb(Ahsv);
     Anew=uint8(Anew.*255);
 end
+=======
+fprintf("Power saving: %f%%\n\n",Perc_Th);
+>>>>>>> 14caf8a7a1495858b6230937d265b21419351778

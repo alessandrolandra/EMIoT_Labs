@@ -45,7 +45,6 @@ end
 
 Ahsv(:,:,3)=V;
 Ahsv(:,:,2)=S;
-Anew=hsv2rgb(Ahsv);
-Anew=uint8(Anew.*255);
+Anew=hsv2rgb255(Ahsv);
 end
 

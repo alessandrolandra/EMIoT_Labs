@@ -6,6 +6,5 @@ Ahsv=rgb2hsv(A);
 V=Ahsv(:,:,3);
 V=adapthisteq(V);
 Ahsv(:,:,3)=V;
-Anew=hsv2rgb(Ahsv);
-Anew=uint8(Anew.*255);
+Anew=hsv2rgb255(Ahsv);
 end
