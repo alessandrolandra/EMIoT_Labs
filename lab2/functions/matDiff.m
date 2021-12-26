@@ -12,6 +12,6 @@ for row=1:size(A,1)
     end
 end
 
-matDiff=(matDiff*100)/(size(A,1)*size(A,2)*sqrt(100*100 + 255*255 + 255*255))
+matDiff=(matDiff*100)/(size(A,1)*size(A,2)*sqrt(100*100 + 255*255 + 255*255));
 
 end
