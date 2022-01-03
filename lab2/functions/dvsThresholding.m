@@ -7,7 +7,6 @@ V=Ahsv(:,:,3);
 bArr = [0.175,0.175,0.2,0.2,0.2,0.225,0.25];
 startingB = bArr(15-Vdd);
 bHIGH = startingB + 0.1;
-bMIDDLE = startingB;
 bLOW = startingB - 0.1;
 
 for row=1:size(A,1)
@@ -17,7 +16,7 @@ for row=1:size(A,1)
         elseif (V(row,col)>0.3)
             V(row,col) = V(row,col) + bLOW;
         else
-            V(row,col) = V(row,col) + bMIDDLE;
+            V(row,col) = V(row,col);
         end        
     end
 end
