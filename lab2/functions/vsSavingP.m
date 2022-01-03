@@ -1,4 +1,4 @@
-%% Power consumption saved in percentage after displaying (parameters order: original,new)
-function vsSavingP = vsSavingP(A,B,Vdd)
-    vsSavingP = (panelP(A,Vdd)-panelP(B,Vdd))*100/panelP(A,Vdd);
+%% Power consumption saved in percentage considering Vdd (parameters order: original,new)
+function vsSavingP = vsSavingP(IA,VddA,IB,VddB)
+    vsSavingP = (panelP(IA,VddA)-panelP(IB,VddB))*100/panelP(IA,VddA);
 end
