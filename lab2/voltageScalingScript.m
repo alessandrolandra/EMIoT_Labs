@@ -12,13 +12,17 @@ Vdd = 12;
 bArr = [0.175,0.175,0.2,0.2,0.2,0.225,0.25];
 b = bArr(15-Vdd);
 
-imgs = dir("images/Set1");
-%imgs = dir("images/Set2");
+%imgs = dir("images/Set1");
+imgs = dir("images/Set2");
 n = 1;
+fixedDistSum = 0;
+fixedPSSum = 0;
+thresholdedDistSum = 0;
+thresholdedPSSum = 0;
 for k = 1:length(imgs)
     if ~startsWith(imgs(k).name,'.')
-        A = imread("images/Set1/"+imgs(k).name);
-        %A = imread("images/Set2/"+imgs(k).name);
+        %A = imread("images/Set1/"+imgs(k).name);
+        A = imread("images/Set2/"+imgs(k).name);
 
         B1 = rgb2hsv(A);
         L1 = rgb2lab(A);
@@ -50,14 +54,23 @@ for k = 1:length(imgs)
         subplot(2,2,3)
         image(displayedRGBModified/255);
         title("Fixed brightness comp");
-        fprintf("Fixed brightness compensation parameter\nImage distortion: %f%%\n",matDistP(L1,L2));
-        fprintf("Power saving: %f%%\n\n",vsSavingP(ImatrixOriginal,Vdd0,ImatrixModified,Vdd)); % negative due to the fact that we are increasing the quality..
+        fixedDist = matDistP(L1,L2);
+        fixedDistSum = fixedDistSum + fixedDist;
+        fixedPS = vsSavingP(ImatrixOriginal,Vdd0,ImatrixModified,Vdd);
+        fixedPSSum = fixedPSSum + fixedPS;
+        fprintf("Fixed brightness compensation parameter\nImage distortion: %f%%\n",fixedDist);
+        fprintf("Power saving: %f%%\n\n",fixedPS); % can be also negative, due to the fact that we are increasing the quality..
         subplot(2,2,4)        
         image(displayedRGBModifiedTh/255);
         title("Thresholded brightness comp");
-        fprintf("Thresholded brightness compensation parameter\nImage distortion: %f%%\n",matDistP(L1,L3));
-        fprintf("Power saving: %f%%\n\n--------\n\n",vsSavingP(ImatrixOriginal,Vdd0,ImatrixModifiedTh,Vdd)); % negative due to the fact that we are increasing the quality..
+        thresholdedDist = matDistP(L1,L3);
+        thresholdedDistSum = thresholdedDistSum + thresholdedDist;
+        thresholdedPS = vsSavingP(ImatrixOriginal,Vdd0,ImatrixModifiedTh,Vdd);
+        thresholdedPSSum = thresholdedPSSum + thresholdedPS;
+        fprintf("Thresholded brightness compensation parameter\nImage distortion: %f%%\n",thresholdedDist);
+        fprintf("Power saving: %f%%\n\n--------\n\n",thresholdedPS); % can be also negative, due to the fact that we are increasing the quality..
         n = n + 1;
     end
 end
-
+fprintf("Fixed brightness compensation parameter\nAverage distortion: %f%%\nAverage power saving: %f%%\n",fixedDistSum/n,fixedPSSum/n);
+fprintf("Thresholded brightness compensation parameter\nAverage distortion: %f%%\nAverage power saving: %f%%\n",thresholdedDistSum/n,thresholdedPSSum/n);
