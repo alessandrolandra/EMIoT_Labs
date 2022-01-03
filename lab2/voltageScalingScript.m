@@ -12,8 +12,8 @@ Vdd = 12;
 bArr = [0.175,0.175,0.2,0.2,0.2,0.225,0.25];
 b = bArr(15-Vdd);
 
-%imgs = dir("images/Set1");
-imgs = dir("images/Set2");
+imgs = dir("images/Set1");
+%imgs = dir("images/Set2");
 n = 1;
 fixedDistSum = 0;
 fixedPSSum = 0;
@@ -21,8 +21,8 @@ thresholdedDistSum = 0;
 thresholdedPSSum = 0;
 for k = 1:length(imgs)
     if ~startsWith(imgs(k).name,'.')
-        %A = imread("images/Set1/"+imgs(k).name);
-        A = imread("images/Set2/"+imgs(k).name);
+        A = imread("images/Set1/"+imgs(k).name);
+        %A = imread("images/Set2/"+imgs(k).name);
 
         B1 = rgb2hsv(A);
         L1 = rgb2lab(A);
