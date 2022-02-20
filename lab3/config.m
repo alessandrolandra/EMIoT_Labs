@@ -1,5 +1,3 @@
-load('gmonths.mat')
-
 % sensor activation durantion 
 air_time = 30; 
 methane_time = 30; 
