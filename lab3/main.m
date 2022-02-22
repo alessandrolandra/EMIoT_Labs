@@ -71,25 +71,29 @@ I(4)=Vi1000(i,2);
 %% PV DC/DC Efficiency values, from digitizer
 Epv=readtable('PV_DCDCconv/DigitPVconv.txt');
 Epv=table2array(Epv);
-
+Vpv=Epv(:,1);
+Epv=Epv(:,2) / 100;
 figure
 hold on, grid on
 title('Efficiency PV DC/DC converter')
-ylabel('Efficiency (%)')
+ylabel('Efficiency')
 xlabel('Input Voltage (V)')
-plot(Epv(:,1),Epv(:,2))
+plot(Vpv,Epv)
 hold off
+
 
 %% Battery DC/DC Eficiency values, from digitizer
 Ebatt=readtable('Battery_DCDCconv/DigitBatteryConv.txt');
 Ebatt=table2array(Ebatt);
+Ibatt=Ebatt(:,1);
+Ebatt=Ebatt(:,2) / 100;
 
 figure
 hold on, grid on
 title('Efficiency Battery DC/DC converter')
-ylabel('Efficiency (%)')
+ylabel('Efficiency')
 xlabel('Input Current (A)')
-plot(Ebatt(:,1),Ebatt(:,2))
+plot(Ibatt,Ebatt)
 hold off
 
 %% Battery model state of charge
@@ -113,11 +117,11 @@ hold off
 i=size(SoC1);
 i=i(1);
 soc_min=SoC1(i,1);
-SoC1(:,1) = 1 - (SoC1(:,1) ./ soc_min)
+SoC1(:,1) = 1 - (SoC1(:,1) ./ soc_min);
 i=size(SoC2);
 i=i(1);
 soc_min=SoC2(i,1);
-SoC2(:,1) = 1 - (SoC2(:,1) ./ soc_min)
+SoC2(:,1) = 1 - (SoC2(:,1) ./ soc_min);
 figure
 hold on, grid on
 title('Voltage,State of charge')
@@ -140,14 +144,15 @@ plot(NewX,NewY1,'red')
 plot(NewX,NewY2,'green')
 legend({'0.5C','1C'},'Location','northeast')
 hold off
-% R samples, 1C=3350mA, 0.5C=1675mA
-Rsoc = (NewY1 - NewY2)/1.675;
+% R samples, 1C=3200mA, 0.5C=1600mA
+Rsoc = (NewY1 - NewY2)/1.600;
 Rsoc_poly=Rsoc_func(NewX, Rsoc);
 % Voc
-Voc = NewY1 + Rsoc*1.675;
+Voc = NewY1 + Rsoc*1.600;
 Voc_poly=Voc_func(NewX, Voc);
 %% load configurations
 config
+
 
 
 
